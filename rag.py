@@ -20,7 +20,7 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 # Streamlit page configuration
 st.set_page_config(
-    page_title="Insight Matrix RAG11111",          # Sets page title
+    page_title="Insight Matrix RAG",          # Sets page title
     page_icon="💼",                           # Sets favicon
     layout="wide",                            # Sets layout to wide-screen
     initial_sidebar_state="collapsed",        # Hides sidebar on page load

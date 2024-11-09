@@ -10,10 +10,10 @@ from vectordb import create_vector_db_from_text, delete_vector_db
 from web_to_text import extract_all_pages, is_valid_url
 
 
-# On non-Windows systems, switch to an alternative SQLite package for compatibility
-__import__('pysqlite3')
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+# On Windows systems, switch to an alternative SQLite package for compatibility or comment the code below
+# __import__('pysqlite3')
+# import sys
+# sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 
 
@@ -72,8 +72,16 @@ def main() -> None:
             "Pick a model available  ↓", available_models
         )
    
-    # Input box to receive WordPress website URL
-    file_upload = col2.text_input("Enter WordPress website URL")
+    # Set default values for session state if not already initialized
+
+    st.session_state.placeholder = "https://example.com"  # Default placeholder URL
+    # Input box to receive WordPress website URL with HTML for spacing
+    file_upload = col2.text_input(
+        "Enter WordPress website URL: Example : https://divimundo.com",  # The label for the input box
+        placeholder=st.session_state.placeholder,  # Set placeholder text to URL
+    )
+    
+        
     file_valid = is_valid_url(file_upload)  # Validate the entered URL
     
     # Warn user if the entered URL is invalid
@@ -98,7 +106,12 @@ def main() -> None:
         
         # Embed the entered URL in an iframe for display
         with col2:
-            components.iframe(file_upload, height=520)
+            # components.iframe(file_upload, height=520)
+            if file_upload:
+                iframe_code = f'''
+                <iframe src="{file_upload}" width="100%" height="520" style="border:none;" scrolling="yes"></iframe>
+                '''
+                st.markdown(iframe_code, unsafe_allow_html=True)
 
     # Button to delete the vector database collection
     delete_collection = col2.button("⚠️ Delete stored database collection", type="secondary")

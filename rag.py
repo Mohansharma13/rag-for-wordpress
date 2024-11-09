@@ -77,7 +77,7 @@ def main() -> None:
     st.session_state.placeholder = "https://example.com"  # Default placeholder URL
     # Input box to receive WordPress website URL with HTML for spacing
     file_upload = col2.text_input(
-        "Enter WordPress website URL: Example : https://divimundo.com",  # The label for the input box
+        "Enter WordPress website URL: Example : https://divimundo.com , https://blogs.nasa.gov/",  # The label for the input box
         placeholder=st.session_state.placeholder,  # Set placeholder text to URL
     )
     

@@ -11,9 +11,9 @@ from web_to_text import extract_all_pages, is_valid_url
 
 
 # On Windows systems, switch to an alternative SQLite package for compatibility or comment the code below
-# __import__('pysqlite3')
-# import sys
-# sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 
 
@@ -107,7 +107,7 @@ def main() -> None:
         # Embed the entered URL in an iframe for display
         with col2:
             # components.iframe(file_upload, height=520)
-            if file_upload:
+            if file_upload and file_valid and "file_upload" in st.session_state:
                 iframe_code = f'''
                 <iframe src="{file_upload}" width="100%" height="520" style="border:none;" scrolling="yes"></iframe>
                 '''

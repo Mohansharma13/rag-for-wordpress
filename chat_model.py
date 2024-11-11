@@ -1,17 +1,16 @@
-from langchain_community.vectorstores import Chroma
 from langchain.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-# from langchain_community.chat_models import ChatOllama
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_community.vectorstores import Chroma
 from langchain_core.runnables import RunnablePassthrough
 from langchain.retrievers.multi_query import MultiQueryRetriever
 import logging
 import os
 from dotenv import load_dotenv
-from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Load environment variables from the .env file
 load_dotenv()
-os.environ["GOOGLE_API_KEY"] = os.getenv("GEMMA_KEYGOOGLE_API_KEY")
+os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
 
 # Logging configuration for debug information
 logging.basicConfig(
@@ -24,7 +23,7 @@ logger = logging.getLogger(__name__)  # Logger for logging events in the functio
 
 def process_question(question: str, vector_db: Chroma, selected_model: str) -> str:
     """
-    Process a user question using the vector database and selected language model.
+    Process a user question using the vector database and selected language model, with Chain-of-Thought reasoning.
 
     Args:
         question (str): The user's question.
@@ -39,15 +38,14 @@ def process_question(question: str, vector_db: Chroma, selected_model: str) -> s
     
     # Initialize the language model with specific parameters
     llm = ChatGoogleGenerativeAI(
-        model="gemini-1.5-pro",         # Specifies the model name
-        temperature=0,                  # Controls creativity/variation in responses
-        max_tokens=None,                # Sets the token limit, None means default
-        timeout=None,                   # Sets response timeout, None means default
-        max_retries=2                   # Number of times to retry on failure
-        # other params...
+        model="gemini-1.5-pro",
+        temperature=0,
+        max_tokens=None,
+        timeout=None,
+        max_retries=2
     )
     
-    # Prompt template to generate alternative queries for better document retrieval
+    # Prompt template for generating alternative queries
     QUERY_PROMPT = PromptTemplate(
         input_variables=["question"],
         template="""You are an AI language model assistant. Your task is to generate 
@@ -58,29 +56,27 @@ def process_question(question: str, vector_db: Chroma, selected_model: str) -> s
         Original question: {question}""",
     )
 
-    # Initialize the multi-query retriever with vector database retriever, language model, and prompt
+    # Initialize the multi-query retriever
     retriever = MultiQueryRetriever.from_llm(
         vector_db.as_retriever(), llm, prompt=QUERY_PROMPT
     )
 
-    # Template for the main query prompt that combines context and question
+    # Template with Chain-of-Thought prompting
     template = """
-        You are an AI language model. Answer the question using the following context and your own knowledge:
+        You are an AI language model for . Answer the question using the following context and your own knowledge.
+        
+        Before you give the final answer, think through the problem step-by-step to make sure the reasoning is clear:
         Context: {context}
         Question: {question}
+        
+        Think step-by-step to arrive at the answer. If the context does not provide sufficient information, use your own knowledge.
+        However, if you still don't know the answer, simply say that you don't know.
+    """
 
-        If the context does not provide sufficient information, use your own knowledge to answer the question. However, if you still don't know the answer, simply say that you don't know.
-        """
-
-    # Create the chat prompt from the template
+    # Create the chat prompt with CoT
     prompt = ChatPromptTemplate.from_template(template)
 
-    # Define the process chain:
-    # 1. Pass "context" through retriever
-    # 2. Pass "question" as is through RunnablePassthrough
-    # 3. Format the prompt with context and question
-    # 4. Pass through language model (llm) to generate response
-    # 5. Parse response with StrOutputParser to get a clean string
+    # Define the process chain with CoT
     chain = (
         {"context": retriever, "question": RunnablePassthrough()}
         | prompt

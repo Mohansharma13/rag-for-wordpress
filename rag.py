@@ -11,9 +11,9 @@ from web_to_text import extract_all_pages, is_valid_url
 
 
 # On Windows systems, switch to an alternative SQLite package for compatibility or comment the code below
-__import__('pysqlite3')
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+# __import__('pysqlite3')
+# import sys
+# sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 
 

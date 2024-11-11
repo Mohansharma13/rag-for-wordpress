@@ -1,4 +1,4 @@
-# RAG App with Chain of Thought (CoT) and Multi-Query Retrieval
+# RAG App with Chain of Thought (CoT) and Multi-Query Retrieval For Wordpress website Blog
 
 This project is a Retrieval-Augmented Generation (RAG) application that enhances response accuracy and depth by implementing a Chain of Thought (CoT) approach. By generating multiple alternative queries, the system retrieves a more comprehensive set of documents to answer complex user questions with improved relevance and context.
 
